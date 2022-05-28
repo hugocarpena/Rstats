@@ -1,0 +1,28 @@
+library(rayshader)
+install.packages("elevatr")
+library(rayrender)
+library(elevatr)
+library(raster)
+readRDS(url("https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_ESP_0_sf.rds")) -> españa1
+elevatr::get_elev_raster(españa1, z = 10) -> dem1
+rayshader::raster_to_matrix(dem1) -> elevationesp
+raster::mask(dem1, españa1) -> españa_dem1
+rayshader::raster_to_matrix(españa_dem1) -> españa_mat1
+rayshader::reduce_matrix_size(españa_mat1, 0.7) -> españa_red_mat1
+
+españa_red_mat1 %>% 
+  sphere_shade() %>% 
+  add_overlay(height_shade(españa_red_mat1), alphalayer = 0.6) %>% 
+  addshadow(ray_shade(españa_red_mat1, zscale = 50)) %>% 
+  plot_map()
+
+españa_red_mat1 %>%                 
+          sphere_shade(texture = "imhof3") %>%
+          plot_3d(españa_red_mat1, windowsize = c(1200,1200), zscale = 10,
+                  zoom = 0.75, phi = 89, theta = 0, fov = 0.3, background  = "white") 
+
+
+
+
+
+render_camera(zoom = 0.6, phi = 89, theta = 90, fov = 0)
